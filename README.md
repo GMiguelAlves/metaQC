@@ -76,26 +76,18 @@ pip install pandas typer pyyaml openpyxl rich
 
 ---
 
-## Quick Start
+## Usage
 
 Validate metadata:
 
 ```bash
-python metaqc/cli.py run metadata.csv
+python -m metaqc.cli <dir>/<metadata.csv>
 ```
 
-Output:
+Outputs:
 
-```text
-All required columns present.
-No duplicate sample IDs found.
-```
-
-Generated files:
-
-- `metadata_clean.csv`
-
----
+- metadata_clean.csv
+- validation_report.txt---
 
 ## Expected Schema
 
