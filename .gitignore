@@ -1,2 +1,13 @@
 **/__pycache__/
 tests/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+logs/
+metadata_clean.csv
+validation_report.txt
+python-list.yml
+run.sh
