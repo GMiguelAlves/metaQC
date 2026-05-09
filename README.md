@@ -1,4 +1,3 @@
-```markdown
 # metaQc
 
 Lightweight CLI tool for validation, normalization, and quality control of RNA-seq metadata.
@@ -230,4 +229,4 @@ metaQc/
 Contributions, suggestions, and issue reports are welcome.
 
 Feel free to open pull requests or submit feature requests.
-```
+
