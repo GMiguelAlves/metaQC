@@ -1,55 +1,25 @@
-# metaQc
+# metaQC
 
-Lightweight CLI tool for validation, normalization, and quality control of RNA-seq metadata.
+A lightweight CLI tool for RNA-seq metadata validation, normalization, harmonization, and scaffold generation.
 
-`metaQc` was developed to help standardize heterogeneous metadata tables commonly obtained from public repositories, supplementary materials, and collaborative projects before downstream transcriptomic analysis.
+`metaQC` was designed to simplify the preprocessing of heterogeneous metadata obtained from public repositories and collaborators, especially in large-scale transcriptomic and meta-analysis workflows.
 
-The tool focuses on validating metadata integrity, harmonizing column names and categorical values, and generating clean standardized tables for RNA-seq workflows.
-
----
-
-## Why metaQc?
-
-RNA-seq metadata is often inconsistent across studies and sources.
-
-Common issues include:
-
-- inconsistent column names (`sample`, `sample_id`, `SampleID`)
-- categorical variation (`Male`, `M`, `male`)
-- duplicated samples
-- missing required fields
-- unbalanced experimental design
-- manually curated metadata from publications
-
-`metaQc` provides a simple CLI workflow to detect and correct these issues before analysis.
+It helps standardize inconsistent metadata formats, validate required fields, merge multiple studies, and generate metadata templates for manual curation.
 
 ---
 
 ## Features
 
-Current features:
-
-- Load metadata from:
-  - CSV
-  - TSV
-  - XLSX
-
-- Column alias mapping
-- Required column validation
-- Duplicate sample detection
-- Categorical normalization
-- Metadata merging
-- Validation report generation
-- Manual metadata scaffold generation
-
-Planned features:
-
-- replicate balance checks
-- batch confounding detection
-- missingness summaries
-- HTML reports
-- schema customization
-- MultiQC/FastQC integration
+- Validate metadata files (`csv`, `tsv`, `xlsx`, `xls`)
+- Normalize column names using alias mapping
+- Normalize categorical values (e.g. `M` → `male`, `F` → `female`)
+- Detect duplicated sample IDs
+- Validate required schema fields
+- Merge multiple metadata files into a single table
+- Automatically assign study names during merge
+- Generate scaffold templates for missing metadata
+- Infer sample IDs directly from sequencing files
+- Generate human-readable validation reports
 
 ---
 
@@ -58,175 +28,281 @@ Planned features:
 Clone repository:
 
 ```bash
-git clone https://github.com/your_username/metaQc.git
-cd metaQc
+git clone https://github.com/GMiguelAlves/metaQC.git
+cd metaQC
 ```
 
-Install dependencies:
+Install locally:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
-Or install manually:
+After installation, the CLI command becomes available:
 
 ```bash
-pip install pandas typer pyyaml openpyxl rich
+metaqc --help
 ```
 
 ---
 
-## Usage
+## Commands
 
-Validate metadata
+### Validate metadata
 
-```bash
-python -m metaqc.cli validate metadata.tsv
-```
-
-Merge studies
+Validate and normalize a metadata file:
 
 ```bash
-python -m metaqc.cli merge metadata_folder/
+metaqc validate metadata.tsv
 ```
 
-Generate scaffold
+Outputs:
+
+- `metadata_clean.csv`
+- `validation_report.txt`
+
+Custom output:
 
 ```bash
-python -m metaqc.cli scaffold PRJNA12345 --samples-dir data/
+metaqc validate metadata.tsv --output cleaned_metadata.csv
 ```
 
----
+Keep only selected columns:
 
-## Expected Schema
-
-Minimum required columns:
-
-- `sample_id`
-
-Optional columns:
-
-- `study`
-- `sex`
-- `stage`
-- `batch`
-- `replicate`
-- `platform`
-- `layout`
-- `strandedness`
-- `source`
-- `curation_notes`
-
-Example:
-
-```csv
-sample_id,study,condition,sex,stage,batch,replicate
-SRR001,StudyA,treated,male,adult,1,1
-SRR002,StudyA,control,female,adult,1,1
+```bash
+metaqc validate metadata.tsv \
+    --keep sample_id,stage,sex \
+    --output minimal_metadata.csv
 ```
 
 ---
 
-## Alias Mapping
+### Merge metadata
 
-metaQc automatically standardizes common aliases.
-
-Example:
-
-| Input Column | Standardized Column |
-| ------------ | ------------------- |
-| sample       | sample_id           |
-| SampleID     | sample_id           |
-| gender       | sex                 |
-| group        | condition           |
-
-Aliases are defined in:
+Merge multiple metadata files from a folder:
 
 ```bash
-schemas/rnaseq.yaml
+metaqc merge metadata_folder/
 ```
 
-Users can customize schemas and aliases.
+Custom output:
+
+```bash
+metaqc merge metadata_folder/ --output merged_metadata.csv
+```
+
+During merge:
+- each file is validated
+- aliases are standardized
+- invalid files are skipped
+- `study` column is automatically added using filename if missing
 
 ---
 
-## Merge Multiple Metadata Files
+### Generate scaffold template
 
-Merge multiple standardized metadata files:
+Create empty metadata template:
 
 ```bash
-metaqc merge parsed_metadata/
+metaqc scaffold PRJNA12345
 ```
 
 Output:
 
-- merged metadata table
-- merge summary report
+- `metadata_scaffold.csv`
 
----
-
-## Manual Scaffold
-
-Generate metadata template for datasets lacking metadata:
-
-```bash
-metaqc scaffold PRJNA999999
-```
-
-Output:
+Example:
 
 ```csv
-sample_id,condition,sex,stage,batch,replicate,source,curation_notes
-```
-
-This is useful for manually curating metadata from publications or supplementary materials.
-
----
-
-## Example Workflow
-
-Typical usage:
-
-```text
-raw metadata
-   ↓
-custom parser
-   ↓
-standardized metadata
-   ↓
-metaQc validate
-   ↓
-normalized metadata
-   ↓
-merge
-   ↓
-downstream RNA-seq analysis
+sample_id,study,stage,sex,tissue,condition,batch,replicate,source,curation_notes
+,PRJNA12345,,,,,,,
 ```
 
 ---
 
-## Project Structure
+### Scaffold from sample directory
+
+Automatically infer sample IDs from sequencing files:
+
+```bash
+metaqc scaffold PRJNA12345 --samples-dir data/
+```
+
+Supported file extensions:
+
+- `.fastq.gz`
+- `.fq.gz`
+- `.fastq`
+- `.fq`
+- `.bam`
+- `.sam`
+
+Example directory:
 
 ```text
-metaQc/
+data/
+├── SRR001.fastq.gz
+├── SRR002.fastq.gz
+├── SRR003.bam
+```
+
+Generated scaffold:
+
+```csv
+sample_id,study,stage,sex,tissue,condition,batch,replicate,source,curation_notes
+SRR001,PRJNA12345,,,,,,,local_files,
+SRR002,PRJNA12345,,,,,,,local_files,
+SRR003,PRJNA12345,,,,,,,local_files,
+```
+
+---
+
+## Schema system
+
+metaQC uses YAML schemas for metadata standardization.
+
+Example schema:
+
+```yaml
+required_columns:
+  - sample_id
+
+optional_columns:
+  - study
+  - stage
+  - sex
+  - tissue
+  - condition
+  - batch
+  - replicate
+  - platform
+  - layout
+  - strandedness
+  - source
+  - curation_notes
+```
+
+Aliases:
+
+```yaml
+aliases:
+  sample_id:
+    - sample
+    - sampleid
+    - sample_name
+    - sample name
+
+  stage:
+    - location
+    - lifecycle_stage
+```
+
+Normalization:
+
+```yaml
+normalization:
+  sex:
+    M: male
+    F: female
+```
+
+Use custom schema:
+
+```bash
+metaqc validate metadata.tsv --schema-file custom_schema.yaml
+```
+
+---
+
+## Validation report
+
+Example generated report:
+
+```text
+Validation Summary
+==============================
+
+Rows: 75
+Columns: 21
+
+Required columns: OK
+
+Duplicates: none
+
+Schema summary:
+- Required: sample_id
+- Optional: study, stage, sex, tissue, condition
+
+Final columns:
+sample_id, stage, sex
+
+Applied alias mapping:
+- Sample Name -> sample_id
+- Location -> stage
+- Sex -> sex
+```
+
+---
+
+## Example workflow
+
+Generate scaffold from raw files:
+
+```bash
+metaqc scaffold PRJNA12345 --samples-dir raw_data/
+```
+
+Curate metadata manually, then validate:
+
+```bash
+metaqc validate curated_metadata.csv \
+    --keep sample_id,stage,sex \
+    --output clean_metadata.csv
+```
+
+Merge multiple studies:
+
+```bash
+metaqc merge studies/ --output merged_metadata.csv
+```
+
+---
+
+## Project structure
+
+```text
+metaQC/
 ├── metaqc/
 │   ├── cli.py
 │   ├── io.py
 │   ├── parser.py
 │   ├── validator.py
 │   ├── normalizer.py
-│   └── report.py
+│   ├── merger.py
+│   ├── scaffold.py
+│   ├── report.py
+│   └── __init__.py
 ├── schemas/
 │   └── rnaseq.yaml
 ├── tests/
-├── requirements.txt
+├── pyproject.toml
 └── README.md
 ```
 
+---
 
-## Contributing
+## Roadmap
 
-Contributions, suggestions, and issue reports are welcome.
+Planned improvements:
 
-Feel free to open pull requests or submit feature requests.
+- JSON report export
+- ontology-aware metadata validation
+- automatic ENA/SRA metadata retrieval
+- regex-based sample annotation inference
+- pipeline integration modules
 
+---
+
+## License
+
+MIT License
