@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "metaqc"
+version = "0.3.0"
+description = "CLI tool for RNA-seq metadata validation, normalization and harmonization"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+    { name = "GMiguel Alves" }
+]
+
+dependencies = [
+    "pandas",
+    "typer",
+    "PyYAML",
+    "openpyxl",
+    "rich"
+]
+
+
+[project.scripts]
+metaqc = "metaqc.cli:app"
+
+
+[tool.setuptools]
+packages = ["metaqc"]

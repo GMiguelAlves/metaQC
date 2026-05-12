@@ -3,6 +3,7 @@
 tests/
 folders/
 data/
+*.egg-info/
 *.tsv
 *.csv
 *.pyc
