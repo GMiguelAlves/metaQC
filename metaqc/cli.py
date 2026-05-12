@@ -7,7 +7,7 @@ from metaqc.validator import validate_required_columns, check_duplicates
 from metaqc.normalizer import normalize_values
 from metaqc.report import generate_report, save_report
 from metaqc.merger import merge_metadata
-
+from metaqc.scaffold import create_scaffold
 
 app = typer.Typer()
 
@@ -73,6 +73,27 @@ def merge(
     save_metadata(merged, output)
 
     print("Merge completed successfully.")
+    print("Generated file:")
+    print(f"- {output}")
+
+@app.command()
+def scaffold(
+    study_name: str,
+    output: str = "metadata_scaffold.csv",
+    samples_dir: Optional[str] = None
+):
+    """
+    Generate metadata scaffold template.
+    Optionally infer samples from directory.
+    """
+
+    create_scaffold(
+        study_name=study_name,
+        output_file=output,
+        samples_dir=samples_dir
+    )
+
+    print("Scaffold created successfully.")
     print("Generated file:")
     print(f"- {output}")
 
