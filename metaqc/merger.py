@@ -10,6 +10,8 @@ from metaqc.validator import validate_required_columns
 def merge_metadata(folder_path: str, schema_file: str):
     """
     Validate and merge multiple metadata files.
+    Automatically adds study column based on filename
+    if missing.
     """
     folder = Path(folder_path)
 
@@ -35,6 +37,9 @@ def merge_metadata(folder_path: str, schema_file: str):
         if missing:
             print(f"Skipping {file.name}: missing columns {missing}")
             continue
+
+        if "study" not in df.columns:
+            df["study"] = file.stem
 
         merged_dfs.append(df)
 
