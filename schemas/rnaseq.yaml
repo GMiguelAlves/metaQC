@@ -2,12 +2,13 @@ schema_name: rnaseq
 
 required_columns:
   - sample_id
-  - condition
 
 optional_columns:
   - study
-  - sex
   - stage
+  - sex
+  - tissue
+  - condition
   - batch
   - replicate
   - platform
@@ -22,6 +23,7 @@ aliases:
     - sampleid
     - sample_name
     - sample_name_id
+    - sample name
     - run_accession
     - run
     - accession
@@ -44,7 +46,7 @@ aliases:
     - gender
 
   stage:
-    - stage
+    - location
     - lifecycle_stage
     - developmental_stage
     - life_stage
