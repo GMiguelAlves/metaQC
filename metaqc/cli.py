@@ -16,7 +16,9 @@ app = typer.Typer()
 def validate(
     input_file: str,
     schema_file: str = "schemas/rnaseq.yaml",
-    keep: Optional[str] = None
+    keep: Optional[str] = None,
+    output: str = "metadata_clean.csv"
+
 ):
     """
     Validate and normalize RNA-seq metadata.
@@ -46,19 +48,21 @@ def validate(
 
         df = df[existing_columns]
 
-    save_metadata(df, "metadata_clean.csv")
+    save_metadata(df, output)
     save_report(report, "validation_report.txt")
 
     print(report)
     print("\nGenerated files:")
-    print("- metadata_clean.csv")
+    print(f"- {output}")
     print("- validation_report.txt")
 
 
 @app.command()
 def merge(
     input_folder: str,
-    schema_file: str = "schemas/rnaseq.yaml"
+    schema_file: str = "schemas/rnaseq.yaml",
+    output: str = "merged_metadata.csv"
+
 ):
     """
     Validate and merge multiple metadata files.
@@ -66,12 +70,11 @@ def merge(
 
     merged = merge_metadata(input_folder, schema_file)
 
-    save_metadata(merged, "merged_metadata.csv")
+    save_metadata(merged, output)
 
     print("Merge completed successfully.")
     print("Generated file:")
-    print("- merged_metadata.csv")
-
+    print(f"- {output}")
 
 if __name__ == "__main__":
     app()
