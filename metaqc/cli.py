@@ -27,7 +27,7 @@ def validate(
     df = load_metadata(input_file)
     schema = load_schema(schema_file)
 
-    df = map_aliases(df, schema["aliases"])
+    df, applied_aliases = map_aliases(df, schema["aliases"])
     df = normalize_values(df, schema["normalization"])
 
     missing = validate_required_columns(
@@ -36,7 +36,13 @@ def validate(
     )
     duplicates = check_duplicates(df)
 
-    report = generate_report(missing, duplicates)
+    report = generate_report(
+    df=df,
+    missing_columns=missing,
+    duplicates=duplicates,
+    schema=schema,
+    alias_map=applied_aliases
+)
 
     if keep:
         keep_columns = [col.strip() for col in keep.split(",")]
@@ -83,8 +89,7 @@ def scaffold(
     samples_dir: Optional[str] = None
 ):
     """
-    Generate metadata scaffold template.
-    Optionally infer samples from directory.
+    Generate metadata scaffold template. Optionally infer samples from directory.
     """
 
     create_scaffold(

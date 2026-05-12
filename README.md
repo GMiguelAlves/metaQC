@@ -78,23 +78,31 @@ pip install pandas typer pyyaml openpyxl rich
 
 ## Usage
 
-Validate metadata:
+Validate metadata
 
 ```bash
-python -m metaqc.cli <dir>/<metadata.csv>
+python -m metaqc.cli validate metadata.tsv
 ```
 
-Outputs:
+Merge studies
 
-- metadata_clean.csv
-- validation_report.txt---
+```bash
+python -m metaqc.cli merge metadata_folder/
+```
+
+Generate scaffold
+
+```bash
+python -m metaqc.cli scaffold PRJNA12345 --samples-dir data/
+```
+
+---
 
 ## Expected Schema
 
 Minimum required columns:
 
 - `sample_id`
-- `condition`
 
 Optional columns:
 
