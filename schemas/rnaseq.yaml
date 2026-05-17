@@ -24,9 +24,7 @@ aliases:
     - sample_name
     - sample_name_id
     - sample name
-    - run_accession
-    - run
-    - accession
+    - sample_alias
 
   condition:
     - group
