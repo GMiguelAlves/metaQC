@@ -26,7 +26,7 @@ def merge_metadata(folder_path: str, schema_file: str):
             continue
 
         df = load_metadata(str(file))
-        df = map_aliases(df, schema["aliases"])
+        df, applied_aliases = map_aliases(df, schema["aliases"])
         df = normalize_values(df, schema["normalization"])
 
         missing = validate_required_columns(

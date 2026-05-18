@@ -51,11 +51,18 @@ def save_metadata(df: pd.DataFrame, output_path: str = "metadata_clean.csv") -> 
 def load_schema(schema_path: str) -> dict:
     """
     Load YAML schema configuration.
+
+    If relative path is provided, resolve it relative
+    to package root.
     """
     path = Path(schema_path)
 
+    if not path.is_absolute():
+        package_root = Path(__file__).resolve().parent.parent
+        path = package_root / schema_path
+
     if not path.exists():
-        raise FileNotFoundError(f"Schema not found: {schema_path}")
+        raise FileNotFoundError(f"Schema not found: {path}")
 
     with open(path, "r", encoding="utf-8") as file:
         schema = yaml.safe_load(file)
